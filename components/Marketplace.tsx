@@ -1,12 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { RealEstateAsset } from '../types';
 import { FabricService } from '../services/mockFabricService';
-import { ArrowRightLeft, ShieldCheck, MapPin } from 'lucide-react';
+import { MapPin, ArrowRight } from 'lucide-react';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from './ui/card';
+import { Button } from './ui/button';
+import { Badge } from './ui/badge';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from './ui/dialog';
+import { Input } from './ui/input';
+import { Label } from './ui/label';
 
 export const Marketplace: React.FC = () => {
   const [assets, setAssets] = useState<RealEstateAsset[]>([]);
   const [loading, setLoading] = useState(true);
-  const [transferModal, setTransferModal] = useState<{ asset: RealEstateAsset, isOpen: boolean } | null>(null);
+  const [selectedAsset, setSelectedAsset] = useState<RealEstateAsset | null>(null);
   const [transferAmount, setTransferAmount] = useState<number>(0);
   const [recipient, setRecipient] = useState<string>('');
   const [isTransacting, setIsTransacting] = useState(false);
@@ -30,145 +36,147 @@ export const Marketplace: React.FC = () => {
   }, []);
 
   const handleTransfer = async () => {
-    if (!transferModal || !recipient || transferAmount <= 0) return;
+    if (!selectedAsset || !recipient || transferAmount <= 0) return;
 
     setIsTransacting(true);
     try {
-      await FabricService.transferShares(transferModal.asset.id, recipient, transferAmount);
-      alert("Транзакция успешно записана в блокчейн!");
-      setTransferModal(null);
-      loadData(); // Refresh
+      await FabricService.transferShares(selectedAsset.id, recipient, transferAmount);
+      setSelectedAsset(null);
+      setTransferAmount(0);
+      setRecipient('');
+      loadData();
+      alert("Транзакция отправлена в блокчейн");
     } catch (e: any) {
-      alert(`Ошибка транзакции: ${e.message}`);
+      alert(`Ошибка: ${e.message}`);
     } finally {
       setIsTransacting(false);
     }
   };
 
-  if (loading) return <div className="text-center py-20 text-slate-500">Синхронизация с леджером...</div>;
+  if (loading) return (
+    <div className="flex h-[50vh] items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-slate-200 border-t-violet-600"></div>
+    </div>
+  );
 
   return (
-    <div className="space-y-6">
-      <header className="mb-8">
-        <h2 className="text-3xl font-bold text-slate-900">Маркетплейс</h2>
-        <p className="text-slate-500">Все токенизированные объекты в сети EstateChain</p>
-      </header>
+    <div className="space-y-[30px] animate-in fade-in zoom-in-95 duration-500">
+      <div className="flex flex-col gap-2">
+        <h2 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-violet-600 to-cyan-500 bg-clip-text text-transparent w-fit">
+            Маркетплейс
+        </h2>
+        <p className="text-slate-500 dark:text-slate-400">Инвестируйте в проверенные элитные объекты недвижимости.</p>
+      </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {assets.map(asset => {
+      <div className="grid grid-cols-1 gap-[20px] md:grid-cols-2 lg:grid-cols-3">
+        {assets.map((asset, index) => {
            const myShares = asset.ownerDistribution[currentUser] || 0;
            return (
-            <div key={asset.id} className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden flex flex-col">
-              <div className="h-32 bg-slate-200 relative overflow-hidden">
-                <img src={`https://picsum.photos/seed/${asset.id}/800/400`} alt="property" className="w-full h-full object-cover opacity-90" />
-                <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-md text-white px-3 py-1 rounded-full text-xs font-mono">
-                  ID: {asset.id.slice(0, 8)}...
+            <Card key={asset.id} className="group overflow-hidden flex flex-col border-none shadow-lg hover:shadow-2xl hover:shadow-violet-500/10 transition-all duration-300 bg-white dark:bg-slate-900">
+              <div className="relative h-56 w-full overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent z-10" />
+                <img 
+                  src={`https://picsum.photos/seed/${asset.id}/800/600`} 
+                  alt="property" 
+                  className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" 
+                />
+                <div className="absolute top-4 right-4 z-20">
+                    <Badge className="backdrop-blur-md bg-white/20 hover:bg-white/30 text-white border-0 shadow-sm">
+                        ${asset.pricePerShare} / доля
+                    </Badge>
+                </div>
+                <div className="absolute bottom-4 left-4 z-20 text-white">
+                    <p className="font-bold text-lg">{asset.name}</p>
+                    <div className="flex items-center gap-1 text-xs text-slate-200 mt-1">
+                        <MapPin size={12} /> {asset.location}
+                    </div>
                 </div>
               </div>
               
-              <div className="p-6 flex-1 flex flex-col">
-                <div className="mb-4">
-                  <h3 className="text-xl font-bold text-slate-900 mb-1">{asset.name}</h3>
-                  <div className="flex items-center text-slate-500 text-sm mb-3">
-                    <MapPin size={14} className="mr-1" />
-                    {asset.location}
-                  </div>
-                  <div className="flex gap-2 mb-3">
-                    <span className="bg-blue-50 text-blue-700 text-xs px-2 py-1 rounded-md border border-blue-100">
-                      ${asset.pricePerShare}/доля
-                    </span>
-                    <span className="bg-slate-100 text-slate-600 text-xs px-2 py-1 rounded-md border border-slate-200">
-                      Всего: {asset.totalShares} долей
-                    </span>
-                  </div>
-                  <p className="text-sm text-slate-600 line-clamp-2">{asset.description}</p>
+              <CardContent className="flex-1 pt-6">
+                <p className="text-sm text-slate-600 dark:text-slate-400 line-clamp-3 mb-6 leading-relaxed">
+                    {asset.description}
+                </p>
+                <div className="space-y-[5px]">
+                    <div className="flex items-center justify-between text-sm p-2 rounded bg-slate-50 dark:bg-slate-800/50">
+                        <span className="text-slate-500 dark:text-slate-400">Капитализация</span>
+                        <span className="font-semibold text-slate-900 dark:text-slate-200">${asset.totalValue.toLocaleString()}</span>
+                    </div>
+                    <div className="flex items-center justify-between text-sm p-2 rounded bg-slate-50 dark:bg-slate-800/50">
+                        <span className="text-slate-500 dark:text-slate-400">Ваш портфель</span>
+                        <span className={`font-semibold ${myShares > 0 ? 'text-emerald-500' : 'text-slate-900 dark:text-slate-200'}`}>
+                            {myShares} шт.
+                        </span>
+                    </div>
                 </div>
+              </CardContent>
 
-                <div className="mt-auto pt-4 border-t border-slate-100">
-                   <div className="flex justify-between items-center mb-4">
-                      <span className="text-sm text-slate-500">Ваше владение:</span>
-                      <span className="font-bold text-slate-900">{myShares} долей</span>
-                   </div>
-                   
-                   {myShares > 0 ? (
-                     <button 
-                       onClick={() => setTransferModal({ asset, isOpen: true })}
-                       className="w-full py-2 bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition flex items-center justify-center gap-2 text-sm font-medium"
-                     >
-                       <ArrowRightLeft size={16} />
-                       Передать / Продать
-                     </button>
-                   ) : (
-                     <button disabled className="w-full py-2 bg-slate-100 text-slate-400 rounded-lg cursor-not-allowed text-sm font-medium">
-                       Нет долей для перевода
-                     </button>
-                   )}
-                </div>
-              </div>
-            </div>
+              <CardFooter className="pb-6 pt-2">
+                  <Button 
+                    className={`w-full group-hover:translate-y-0 transition-all ${
+                        myShares > 0 
+                        ? "bg-violet-600 hover:bg-violet-700 text-white shadow-lg shadow-violet-500/25" 
+                        : "bg-slate-900 dark:bg-slate-700 hover:bg-slate-800 text-white"
+                    }`}
+                    onClick={() => setSelectedAsset(asset)}
+                  >
+                    {myShares > 0 ? 'Управление активами' : 'Инвестировать'}
+                    <ArrowRight size={16} className="ml-2 group-hover:translate-x-1 transition-transform" />
+                  </Button>
+              </CardFooter>
+            </Card>
           );
         })}
       </div>
 
-      {/* Transfer Modal */}
-      {transferModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl p-8 w-full max-w-md shadow-2xl animate-fade-in">
-             <h3 className="text-xl font-bold mb-4">Перевод долей</h3>
-             <p className="text-sm text-slate-500 mb-6">
-               Вы собираетесь перевести доли актива <span className="font-bold text-slate-900">{transferModal.asset.name}</span>.
-               Это действие необратимо и будет записано в блокчейн.
-             </p>
-
-             <div className="space-y-4">
-               <div>
-                 <label className="block text-xs font-semibold text-slate-700 uppercase mb-1">ID Получателя</label>
-                 <input 
-                   type="text" 
-                   value={recipient}
-                   onChange={(e) => setRecipient(e.target.value)}
-                   className="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
-                   placeholder="user_investor_1"
-                 />
-               </div>
-               <div>
-                 <label className="block text-xs font-semibold text-slate-700 uppercase mb-1">Количество долей</label>
-                 <input 
-                   type="number" 
-                   value={transferAmount}
-                   onChange={(e) => setTransferAmount(Number(e.target.value))}
-                   className="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
-                   max={transferModal.asset.ownerDistribution[currentUser]}
-                 />
-                 <p className="text-xs text-right mt-1 text-slate-400">Доступно: {transferModal.asset.ownerDistribution[currentUser]}</p>
-               </div>
-             </div>
-
-             <div className="flex gap-3 mt-8">
-               <button 
-                 onClick={() => setTransferModal(null)}
-                 className="flex-1 py-2 border border-slate-300 rounded-lg text-slate-700 font-medium hover:bg-slate-50"
-               >
-                 Отмена
-               </button>
-               <button 
-                 onClick={handleTransfer}
-                 disabled={isTransacting}
-                 className="flex-1 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:bg-blue-400 flex justify-center items-center gap-2"
-               >
-                 {isTransacting ? (
-                   <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
-                 ) : (
-                    <>
-                      <ShieldCheck size={16} />
-                      Подтвердить
-                    </>
-                 )}
-               </button>
-             </div>
-          </div>
-        </div>
-      )}
+      <Dialog open={!!selectedAsset} onOpenChange={(open) => !open && setSelectedAsset(null)}>
+         {selectedAsset && (
+            <DialogContent className="sm:max-w-[425px] dark:bg-slate-900 dark:border-slate-800">
+                <DialogHeader>
+                    <DialogTitle className="text-slate-900 dark:text-white">Перевод активов</DialogTitle>
+                    <DialogDescription className="text-slate-500 dark:text-slate-400">
+                        Трансфер цифровых прав собственности "{selectedAsset.name}".
+                    </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-[20px] py-4">
+                    <div className="grid gap-[5px]">
+                        <Label htmlFor="recipient" className="text-slate-700 dark:text-slate-300">ID Получателя</Label>
+                        <Input 
+                            id="recipient" 
+                            value={recipient} 
+                            onChange={(e) => setRecipient(e.target.value)} 
+                            placeholder="Например: user_investor_1"
+                            className="dark:bg-slate-950 dark:border-slate-800"
+                        />
+                    </div>
+                    <div className="grid gap-[5px]">
+                        <Label htmlFor="amount" className="text-slate-700 dark:text-slate-300">Количество</Label>
+                        <div className="relative">
+                            <Input 
+                                id="amount" 
+                                type="number"
+                                value={transferAmount}
+                                onChange={(e) => setTransferAmount(Number(e.target.value))}
+                                max={selectedAsset.ownerDistribution[currentUser]}
+                                className="dark:bg-slate-950 dark:border-slate-800 pr-16"
+                            />
+                            <span className="absolute right-3 top-2.5 text-xs text-slate-400">TOKENS</span>
+                        </div>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 text-right mt-1">
+                           Доступно: <span className="font-bold text-emerald-500">{selectedAsset.ownerDistribution[currentUser]}</span>
+                        </p>
+                    </div>
+                </div>
+                <DialogFooter>
+                    <Button variant="outline" onClick={() => setSelectedAsset(null)} className="dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800">Отмена</Button>
+                    <Button onClick={handleTransfer} disabled={isTransacting} className="bg-violet-600 hover:bg-violet-700 text-white">
+                        {isTransacting && <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></span>}
+                        Подтвердить
+                    </Button>
+                </DialogFooter>
+            </DialogContent>
+         )}
+      </Dialog>
     </div>
   );
 };

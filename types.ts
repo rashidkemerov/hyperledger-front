@@ -1,3 +1,4 @@
+
 // Определение структуры актива недвижимости в сети
 export interface RealEstateAsset {
   id: string;
@@ -22,4 +23,5 @@ export enum ViewState {
   MARKETPLACE = 'MARKETPLACE',
   TOKENIZE = 'TOKENIZE',
   CONTRACT_CODE = 'CONTRACT_CODE',
+  DOCUMENTATION = 'DOCUMENTATION',
 }
