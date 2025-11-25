@@ -1,0 +1,5 @@
+{
+  "name": "EstateChain Tokenizer",
+  "description": "Платформа токенизации недвижимости на базе Hyperledger Fabric с интерфейсом управления активами.",
+  "requestFramePermissions": []
+}
