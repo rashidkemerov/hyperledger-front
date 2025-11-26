@@ -1,8 +1,9 @@
+
 import React, { useEffect, useState } from 'react';
 import { RealEstateAsset } from '../types';
 import { FabricService } from '../services/mockFabricService';
-import { MapPin, ArrowRight } from 'lucide-react';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from './ui/card';
+import { MapPin, ArrowRight, TrendingUp } from 'lucide-react';
+import { Card, CardContent, CardFooter } from './ui/card';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from './ui/dialog';
@@ -54,74 +55,79 @@ export const Marketplace: React.FC = () => {
   };
 
   if (loading) return (
-    <div className="flex h-[50vh] items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-slate-200 border-t-violet-600"></div>
+    <div className="flex h-full items-center justify-center">
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-slate-200 border-t-violet-600"></div>
     </div>
   );
 
   return (
-    <div className="space-y-[30px] animate-in fade-in zoom-in-95 duration-500">
-      <div className="flex flex-col gap-2">
-        <h2 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-violet-600 to-cyan-500 bg-clip-text text-transparent w-fit">
+    <div className="space-y-[5px] animate-in fade-in zoom-in-95 duration-500 h-full">
+      <div className="p-6 rounded-2xl bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl border border-white/20 dark:border-white/5 shadow-sm mb-[5px]">
+        <h2 className="text-4xl font-heading font-extrabold tracking-tight bg-gradient-to-r from-violet-600 to-cyan-500 bg-clip-text text-transparent w-fit">
             Маркетплейс
         </h2>
-        <p className="text-slate-500 dark:text-slate-400">Инвестируйте в проверенные элитные объекты недвижимости.</p>
+        <p className="text-slate-600 dark:text-slate-400 font-medium mt-1">
+            Инвестируйте в проверенные элитные объекты недвижимости.
+        </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-[20px] md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-[5px] md:grid-cols-2 lg:grid-cols-3">
         {assets.map((asset, index) => {
            const myShares = asset.ownerDistribution[currentUser] || 0;
            return (
-            <Card key={asset.id} className="group overflow-hidden flex flex-col border-none shadow-lg hover:shadow-2xl hover:shadow-violet-500/10 transition-all duration-300 bg-white dark:bg-slate-900">
-              <div className="relative h-56 w-full overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent z-10" />
+            <Card key={asset.id} className="group overflow-hidden flex flex-col border-white/20 dark:border-white/5 bg-white/70 dark:bg-slate-950/70 backdrop-blur-xl shadow-lg hover:shadow-2xl hover:shadow-violet-500/10 transition-all duration-500">
+              <div className="relative h-64 w-full overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent z-10 opacity-80" />
                 <img 
                   src={`https://picsum.photos/seed/${asset.id}/800/600`} 
                   alt="property" 
-                  className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" 
+                  className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110 grayscale-[30%] group-hover:grayscale-0" 
                 />
                 <div className="absolute top-4 right-4 z-20">
-                    <Badge className="backdrop-blur-md bg-white/20 hover:bg-white/30 text-white border-0 shadow-sm">
-                        ${asset.pricePerShare} / доля
+                    <Badge className="backdrop-blur-md bg-white/10 hover:bg-white/20 text-white border border-white/20 shadow-lg px-3 py-1">
+                        ${asset.pricePerShare} <span className="text-slate-300 font-normal ml-1">/ доля</span>
                     </Badge>
                 </div>
-                <div className="absolute bottom-4 left-4 z-20 text-white">
-                    <p className="font-bold text-lg">{asset.name}</p>
-                    <div className="flex items-center gap-1 text-xs text-slate-200 mt-1">
-                        <MapPin size={12} /> {asset.location}
+                <div className="absolute bottom-4 left-4 right-4 z-20 text-white">
+                    <h3 className="font-heading font-bold text-2xl leading-tight mb-1">{asset.name}</h3>
+                    <div className="flex items-center gap-1 text-xs font-medium text-slate-300 uppercase tracking-wide">
+                        <MapPin size={12} className="text-cyan-400" /> {asset.location}
                     </div>
                 </div>
               </div>
               
-              <CardContent className="flex-1 pt-6">
-                <p className="text-sm text-slate-600 dark:text-slate-400 line-clamp-3 mb-6 leading-relaxed">
+              <CardContent className="flex-1 pt-6 px-6">
+                <p className="text-sm text-slate-600 dark:text-slate-300 line-clamp-3 mb-6 leading-relaxed font-medium">
                     {asset.description}
                 </p>
                 <div className="space-y-[5px]">
-                    <div className="flex items-center justify-between text-sm p-2 rounded bg-slate-50 dark:bg-slate-800/50">
-                        <span className="text-slate-500 dark:text-slate-400">Капитализация</span>
-                        <span className="font-semibold text-slate-900 dark:text-slate-200">${asset.totalValue.toLocaleString()}</span>
+                    <div className="flex items-center justify-between text-sm p-3 rounded-xl bg-white/50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800">
+                        <span className="text-slate-500 dark:text-slate-400 font-medium">Капитализация</span>
+                        <span className="font-heading font-bold text-slate-900 dark:text-slate-200">${asset.totalValue.toLocaleString()}</span>
                     </div>
-                    <div className="flex items-center justify-between text-sm p-2 rounded bg-slate-50 dark:bg-slate-800/50">
-                        <span className="text-slate-500 dark:text-slate-400">Ваш портфель</span>
-                        <span className={`font-semibold ${myShares > 0 ? 'text-emerald-500' : 'text-slate-900 dark:text-slate-200'}`}>
-                            {myShares} шт.
-                        </span>
+                    <div className="flex items-center justify-between text-sm p-3 rounded-xl bg-white/50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800">
+                        <span className="text-slate-500 dark:text-slate-400 font-medium">Ваш портфель</span>
+                        <div className="flex items-center gap-2">
+                             {myShares > 0 && <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />}
+                            <span className={`font-heading font-bold ${myShares > 0 ? 'text-emerald-500' : 'text-slate-900 dark:text-slate-200'}`}>
+                                {myShares} шт.
+                            </span>
+                        </div>
                     </div>
                 </div>
               </CardContent>
 
-              <CardFooter className="pb-6 pt-2">
+              <CardFooter className="pb-6 pt-2 px-6">
                   <Button 
-                    className={`w-full group-hover:translate-y-0 transition-all ${
+                    className={`w-full h-12 rounded-xl text-base font-medium group-hover:translate-y-0 transition-all duration-300 ${
                         myShares > 0 
-                        ? "bg-violet-600 hover:bg-violet-700 text-white shadow-lg shadow-violet-500/25" 
-                        : "bg-slate-900 dark:bg-slate-700 hover:bg-slate-800 text-white"
+                        ? "bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white shadow-lg shadow-violet-500/25" 
+                        : "bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:opacity-90 shadow-lg"
                     }`}
                     onClick={() => setSelectedAsset(asset)}
                   >
                     {myShares > 0 ? 'Управление активами' : 'Инвестировать'}
-                    <ArrowRight size={16} className="ml-2 group-hover:translate-x-1 transition-transform" />
+                    <ArrowRight size={18} className="ml-2 group-hover:translate-x-1 transition-transform" />
                   </Button>
               </CardFooter>
             </Card>
@@ -131,26 +137,36 @@ export const Marketplace: React.FC = () => {
 
       <Dialog open={!!selectedAsset} onOpenChange={(open) => !open && setSelectedAsset(null)}>
          {selectedAsset && (
-            <DialogContent className="sm:max-w-[425px] dark:bg-slate-900 dark:border-slate-800">
+            <DialogContent className="sm:max-w-[425px] border-white/20 bg-white/90 dark:bg-slate-950/90 backdrop-blur-2xl shadow-2xl">
                 <DialogHeader>
-                    <DialogTitle className="text-slate-900 dark:text-white">Перевод активов</DialogTitle>
+                    <DialogTitle className="text-2xl font-heading font-bold text-slate-900 dark:text-white">Перевод активов</DialogTitle>
                     <DialogDescription className="text-slate-500 dark:text-slate-400">
                         Трансфер цифровых прав собственности "{selectedAsset.name}".
                     </DialogDescription>
                 </DialogHeader>
-                <div className="grid gap-[20px] py-4">
+                <div className="grid gap-[20px] py-6">
+                    <div className="p-4 rounded-xl bg-violet-50 dark:bg-violet-900/10 border border-violet-100 dark:border-violet-900/30 flex items-center gap-3">
+                         <div className="h-10 w-10 rounded-full bg-violet-200 dark:bg-violet-800 flex items-center justify-center text-violet-700 dark:text-violet-200">
+                             <TrendingUp size={20} />
+                         </div>
+                         <div>
+                             <p className="text-xs text-violet-600 dark:text-violet-400 font-bold uppercase">Доступно</p>
+                             <p className="text-lg font-heading font-bold text-slate-900 dark:text-white">{selectedAsset.ownerDistribution[currentUser]} TOKENS</p>
+                         </div>
+                    </div>
+
                     <div className="grid gap-[5px]">
-                        <Label htmlFor="recipient" className="text-slate-700 dark:text-slate-300">ID Получателя</Label>
+                        <Label htmlFor="recipient" className="text-slate-700 dark:text-slate-300 font-medium">ID Получателя</Label>
                         <Input 
                             id="recipient" 
                             value={recipient} 
                             onChange={(e) => setRecipient(e.target.value)} 
                             placeholder="Например: user_investor_1"
-                            className="dark:bg-slate-950 dark:border-slate-800"
+                            className="bg-white/50 dark:bg-slate-950/50 border-slate-200 dark:border-slate-800 h-11"
                         />
                     </div>
                     <div className="grid gap-[5px]">
-                        <Label htmlFor="amount" className="text-slate-700 dark:text-slate-300">Количество</Label>
+                        <Label htmlFor="amount" className="text-slate-700 dark:text-slate-300 font-medium">Количество</Label>
                         <div className="relative">
                             <Input 
                                 id="amount" 
@@ -158,20 +174,17 @@ export const Marketplace: React.FC = () => {
                                 value={transferAmount}
                                 onChange={(e) => setTransferAmount(Number(e.target.value))}
                                 max={selectedAsset.ownerDistribution[currentUser]}
-                                className="dark:bg-slate-950 dark:border-slate-800 pr-16"
+                                className="bg-white/50 dark:bg-slate-950/50 border-slate-200 dark:border-slate-800 pr-20 h-11 font-heading font-bold text-lg"
                             />
-                            <span className="absolute right-3 top-2.5 text-xs text-slate-400">TOKENS</span>
+                            <span className="absolute right-3 top-3 text-xs font-bold text-slate-400 uppercase tracking-widest">Tokens</span>
                         </div>
-                        <p className="text-xs text-slate-500 dark:text-slate-400 text-right mt-1">
-                           Доступно: <span className="font-bold text-emerald-500">{selectedAsset.ownerDistribution[currentUser]}</span>
-                        </p>
                     </div>
                 </div>
                 <DialogFooter>
-                    <Button variant="outline" onClick={() => setSelectedAsset(null)} className="dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800">Отмена</Button>
-                    <Button onClick={handleTransfer} disabled={isTransacting} className="bg-violet-600 hover:bg-violet-700 text-white">
+                    <Button variant="outline" onClick={() => setSelectedAsset(null)} className="h-11 rounded-lg border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800">Отмена</Button>
+                    <Button onClick={handleTransfer} disabled={isTransacting} className="h-11 rounded-lg bg-violet-600 hover:bg-violet-700 text-white shadow-lg shadow-violet-500/20">
                         {isTransacting && <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></span>}
-                        Подтвердить
+                        Подтвердить перевод
                     </Button>
                 </DialogFooter>
             </DialogContent>

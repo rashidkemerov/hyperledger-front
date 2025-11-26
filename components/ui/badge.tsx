@@ -1,7 +1,9 @@
+
 import React from "react";
 
 interface BadgeProps extends React.HTMLAttributes<HTMLDivElement> {
   variant?: "default" | "secondary" | "destructive" | "outline";
+  className?: string;
 }
 
 export const Badge = ({ className = "", variant = "default", ...props }: BadgeProps) => {
